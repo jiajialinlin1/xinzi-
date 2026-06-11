@@ -18,10 +18,12 @@
     "productName": "Xinzi",
     "files": [
       "package.json",
-      "src/desktop/**/*"
+      "src/desktop/**/*",
+      "assets/**/*"
     ],
     "mac": {
       "category": "public.app-category.utilities",
+      "icon": "assets/icon.icns",
       "target": [
         "dir"
       ]
