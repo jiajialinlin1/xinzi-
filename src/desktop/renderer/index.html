@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self';" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xinzi</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="titlebar">
+        <div>
+          <p class="eyebrow">menubar app</p>
+          <h1>新项目</h1>
+        </div>
+        <button id="settingsButton" class="icon-button" type="button" title="设置" aria-label="设置">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z" />
+            <path d="M19.4 15a1.8 1.8 0 0 0 .36 2l.07.07a2.1 2.1 0 1 1-2.97 2.97l-.07-.07a1.8 1.8 0 0 0-2-.36 1.8 1.8 0 0 0-1.1 1.65V21a2.1 2.1 0 1 1-4.2 0v-.1a1.8 1.8 0 0 0-1.18-1.64 1.8 1.8 0 0 0-1.93.4l-.07.07a2.1 2.1 0 1 1-2.97-2.97l.07-.07a1.8 1.8 0 0 0 .36-2 1.8 1.8 0 0 0-1.65-1.1H2a2.1 2.1 0 1 1 0-4.2h.1a1.8 1.8 0 0 0 1.64-1.18 1.8 1.8 0 0 0-.4-1.93l-.07-.07A2.1 2.1 0 1 1 6.24 3.3l.07.07a1.8 1.8 0 0 0 2 .36A1.8 1.8 0 0 0 9.4 2.08V2a2.1 2.1 0 1 1 4.2 0v.1a1.8 1.8 0 0 0 1.1 1.64 1.8 1.8 0 0 0 2-.36l.07-.07a2.1 2.1 0 1 1 2.97 2.97l-.07.07a1.8 1.8 0 0 0-.36 2 1.8 1.8 0 0 0 1.65 1.1H22a2.1 2.1 0 1 1 0 4.2h-.1A1.8 1.8 0 0 0 19.4 15Z" />
+          </svg>
+        </button>
+      </header>
+
+      <section class="hero">
+        <p>状态</p>
+        <strong>准备构建</strong>
+      </section>
+
+      <section class="details">
+        <div class="row">
+          <span>项目类型</span>
+          <strong>macOS 状态栏应用</strong>
+        </div>
+        <div class="row">
+          <span>框架</span>
+          <strong>Electron</strong>
+        </div>
+        <div class="row">
+          <span>界面材质</span>
+          <strong>Liquid Glass</strong>
+        </div>
+      </section>
+    </main>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>
