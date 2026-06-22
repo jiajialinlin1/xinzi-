@@ -65,6 +65,46 @@ test('manual workday overrides weekend and enables salary calculation', () => {
   assert.equal(state.trayText, '¥133.33');
 });
 
+test('calendar holiday disables salary calculation', () => {
+  const state = computeClockState(
+    baseSettings,
+    new Date('2026-06-11T10:00:00+08:00'),
+    { holidayDates: ['2026-06-11'], workdayDates: [] }
+  );
+
+  assert.equal(getDayType(baseSettings, new Date('2026-06-11T10:00:00+08:00'), { holidayDates: ['2026-06-11'] }), 'holiday');
+  assert.equal(state.status, 'holiday');
+  assert.equal(state.trayText, '不要工作了');
+  assert.equal(state.earnedTodayRmb, 0);
+});
+
+test('calendar workday overrides weekend and enables salary calculation', () => {
+  const state = computeClockState(
+    baseSettings,
+    new Date('2026-06-13T10:00:00+08:00'),
+    { holidayDates: [], workdayDates: ['2026-06-13'] }
+  );
+
+  assert.equal(getDayType(baseSettings, new Date('2026-06-13T10:00:00+08:00'), { workdayDates: ['2026-06-13'] }), 'workday');
+  assert.equal(state.status, 'working');
+  assert.equal(state.trayText, '¥133.33');
+});
+
+test('manual holiday overrides calendar workday', () => {
+  const settings = {
+    ...baseSettings,
+    holidayDates: ['2026-06-13']
+  };
+  const state = computeClockState(
+    settings,
+    new Date('2026-06-13T10:00:00+08:00'),
+    { workdayDates: ['2026-06-13'] }
+  );
+
+  assert.equal(getDayType(settings, new Date('2026-06-13T10:00:00+08:00'), { workdayDates: ['2026-06-13'] }), 'holiday');
+  assert.equal(state.status, 'holiday');
+});
+
 test('uses salary history by effective date', () => {
   const history = [
     { effectiveFrom: '2026-01-01', monthlySalaryRmb: 10000 },

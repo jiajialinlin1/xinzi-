@@ -15,7 +15,13 @@ const DEFAULT_SETTINGS = {
     }
   ],
   holidayDates: [],
-  workdayDates: []
+  workdayDates: [],
+  fishReviewRules: [
+    { minMinutes: 0, maxMinutes: 5, comment: '热身都算不上。' },
+    { minMinutes: 6, maxMinutes: 15, comment: '合理摸鱼，精神保养。' },
+    { minMinutes: 16, maxMinutes: 30, comment: '已经开始有点东西了。' },
+    { minMinutes: 31, maxMinutes: null, comment: '这才是成熟打工人的节奏。' }
+  ]
 };
 
 function createSettingsStore(app) {
@@ -61,7 +67,8 @@ function normalizeSettings(input = {}) {
     hireDate: normalizeDate(base.hireDate, DEFAULT_SETTINGS.hireDate),
     salaryHistory: normalizeSalaryHistory(base.salaryHistory, base.hireDate),
     holidayDates: normalizeDateList(base.holidayDates),
-    workdayDates: normalizeDateList(base.workdayDates)
+    workdayDates: normalizeDateList(base.workdayDates),
+    fishReviewRules: normalizeFishReviewRules(base.fishReviewRules)
   };
 }
 
@@ -94,6 +101,28 @@ function normalizeDateList(list) {
   return [...new Set(list.map((item) => normalizeDate(item, '')).filter(Boolean))].sort();
 }
 
+function normalizeFishReviewRules(rules) {
+  const clean = Array.isArray(rules)
+    ? rules
+      .map((rule) => {
+        const minMinutes = nonNegativeInteger(rule?.minMinutes, null);
+        const maxMinutes = rule?.maxMinutes === null || rule?.maxMinutes === ''
+          ? null
+          : nonNegativeInteger(rule?.maxMinutes, null);
+        const comment = typeof rule?.comment === 'string' ? rule.comment.trim() : '';
+
+        return { minMinutes, maxMinutes, comment };
+      })
+      .filter((rule) => (
+        rule.minMinutes !== null
+        && (rule.maxMinutes === null || rule.maxMinutes >= rule.minMinutes)
+        && rule.comment
+      ))
+    : [];
+
+  return clean.length > 0 ? clean : DEFAULT_SETTINGS.fishReviewRules;
+}
+
 function normalizeTime(value, fallback) {
   return typeof value === 'string' && /^\d{2}:\d{2}$/.test(value) ? value : fallback;
 }
@@ -105,6 +134,11 @@ function normalizeDate(value, fallback) {
 function positiveNumber(value, fallback) {
   const number = Number(value);
   return Number.isFinite(number) && number > 0 ? number : fallback;
+}
+
+function nonNegativeInteger(value, fallback) {
+  const number = Math.floor(Number(value));
+  return Number.isFinite(number) && number >= 0 ? number : fallback;
 }
 
 module.exports = {

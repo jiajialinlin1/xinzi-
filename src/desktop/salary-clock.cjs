@@ -1,79 +1,3 @@
-const BUILT_IN_HOLIDAYS = {
-  holidayDates: [
-    '2025-01-01',
-    '2025-01-28',
-    '2025-01-29',
-    '2025-01-30',
-    '2025-01-31',
-    '2025-02-01',
-    '2025-02-02',
-    '2025-02-03',
-    '2025-02-04',
-    '2025-04-04',
-    '2025-04-05',
-    '2025-04-06',
-    '2025-05-01',
-    '2025-05-02',
-    '2025-05-03',
-    '2025-05-04',
-    '2025-05-05',
-    '2025-05-31',
-    '2025-06-01',
-    '2025-06-02',
-    '2025-10-01',
-    '2025-10-02',
-    '2025-10-03',
-    '2025-10-04',
-    '2025-10-05',
-    '2025-10-06',
-    '2025-10-07',
-    '2025-10-08',
-    '2026-01-01',
-    '2026-01-02',
-    '2026-01-03',
-    '2026-02-16',
-    '2026-02-17',
-    '2026-02-18',
-    '2026-02-19',
-    '2026-02-20',
-    '2026-02-21',
-    '2026-02-22',
-    '2026-02-23',
-    '2026-04-04',
-    '2026-04-05',
-    '2026-04-06',
-    '2026-05-01',
-    '2026-05-02',
-    '2026-05-03',
-    '2026-05-04',
-    '2026-05-05',
-    '2026-06-19',
-    '2026-06-20',
-    '2026-06-21',
-    '2026-09-25',
-    '2026-09-26',
-    '2026-09-27',
-    '2026-10-01',
-    '2026-10-02',
-    '2026-10-03',
-    '2026-10-04',
-    '2026-10-05',
-    '2026-10-06',
-    '2026-10-07'
-  ],
-  workdayDates: [
-    '2025-01-26',
-    '2025-02-08',
-    '2025-04-27',
-    '2025-09-28',
-    '2025-10-11',
-    '2026-02-14',
-    '2026-02-28',
-    '2026-09-20',
-    '2026-10-10'
-  ]
-};
-
 const STATUS_LABELS = {
   working: '工作中',
   lunch: '午休中',
@@ -81,7 +5,7 @@ const STATUS_LABELS = {
   holiday: '不要工作了'
 };
 
-function computeClockState(settings, now = new Date()) {
+function computeClockState(settings, now = new Date(), calendarOverrides = {}) {
   const dateKey = formatDateKey(now);
   const workStart = atTime(now, settings.workStart);
   const workEnd = atTime(now, settings.workEnd);
@@ -90,7 +14,7 @@ function computeClockState(settings, now = new Date()) {
   const dailyWorkSeconds = Math.max(1, secondsBetween(workStart, workEnd) - secondsBetween(lunchStart, lunchEnd));
   const currentSalary = getSalaryForDate(settings.salaryHistory, dateKey);
   const secondRate = currentSalary / settings.monthlyWorkDays / dailyWorkSeconds;
-  const dayType = getDayType(settings, now);
+  const dayType = getDayType(settings, now, calendarOverrides);
   const isWorkday = dayType === 'workday';
   const inLunch = isWorkday && now >= lunchStart && now < lunchEnd;
   const inWork = isWorkday && now >= workStart && now < workEnd && !inLunch;
@@ -105,7 +29,7 @@ function computeClockState(settings, now = new Date()) {
     ? Math.max(0, secondsBetween(now, workEnd))
     : 0;
   const earnedTodayRmb = effectiveWorkedSecondsToday * secondRate;
-  const totalEarnedRmb = computeTotalEarned(settings, now, earnedTodayRmb);
+  const totalEarnedRmb = computeTotalEarned(settings, now, earnedTodayRmb, calendarOverrides);
   const employmentDays = Math.max(0, daysBetween(parseDate(settings.hireDate), startOfDay(now)) + 1);
   const trayText = status === 'working'
     ? formatRmbShort(earnedTodayRmb)
@@ -156,12 +80,12 @@ function getEffectiveWorkedSeconds(now, workStart, workEnd, lunchStart, lunchEnd
   return Math.max(0, seconds);
 }
 
-function getDayType(settings, date) {
+function getDayType(settings, date, calendarOverrides = {}) {
   const dateKey = formatDateKey(date);
   const manualWorkdays = new Set(settings.workdayDates || []);
   const manualHolidays = new Set(settings.holidayDates || []);
-  const builtInWorkdays = new Set(BUILT_IN_HOLIDAYS.workdayDates);
-  const builtInHolidays = new Set(BUILT_IN_HOLIDAYS.holidayDates);
+  const calendarWorkdays = new Set(calendarOverrides.workdayDates || []);
+  const calendarHolidays = new Set(calendarOverrides.holidayDates || []);
 
   if (manualWorkdays.has(dateKey)) {
     return 'workday';
@@ -171,11 +95,11 @@ function getDayType(settings, date) {
     return 'holiday';
   }
 
-  if (builtInWorkdays.has(dateKey)) {
+  if (calendarWorkdays.has(dateKey)) {
     return 'workday';
   }
 
-  if (builtInHolidays.has(dateKey)) {
+  if (calendarHolidays.has(dateKey)) {
     return 'holiday';
   }
 
@@ -183,7 +107,7 @@ function getDayType(settings, date) {
   return day === 0 || day === 6 ? 'holiday' : 'workday';
 }
 
-function computeTotalEarned(settings, now, todayEarned) {
+function computeTotalEarned(settings, now, todayEarned, calendarOverrides = {}) {
   const hireDate = parseDate(settings.hireDate);
   const today = startOfDay(now);
   if (hireDate > today) {
@@ -192,7 +116,7 @@ function computeTotalEarned(settings, now, todayEarned) {
 
   let total = 0;
   for (let day = new Date(hireDate); day < today; day.setDate(day.getDate() + 1)) {
-    if (getDayType(settings, day) === 'workday') {
+    if (getDayType(settings, day, calendarOverrides) === 'workday') {
       total += getSalaryForDate(settings.salaryHistory, formatDateKey(day)) / settings.monthlyWorkDays;
     }
   }
@@ -258,7 +182,6 @@ function maxDate(a, b) {
 }
 
 module.exports = {
-  BUILT_IN_HOLIDAYS,
   STATUS_LABELS,
   computeClockState,
   formatDateKey,
