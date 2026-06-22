@@ -35,4 +35,22 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: Xinzi.app.zip
+          body: |
+            # Xinzi 薪资计时器
+
+            Xinzi 是一款常驻 macOS 菜单栏的薪资计时器，会根据工作时间、午休时间、月薪、入职日期和节假日安排，实时显示今日已赚、距离下班剩余时间，并支持摸鱼薪资统计。
+
+            ## 下载
+
+            [下载 Xinzi.app.zip](https://github.com/jiajialinlin1/xinzi-/releases/download/${{ github.ref_name }}/Xinzi.app.zip)
+
+            当前发布包为 Apple Silicon / arm64 macOS 版本，未进行 Apple Developer ID 签名。首次打开如果 macOS 提示“无法验证开发者”，请在 Finder 中右键点击应用并选择“打开”。
+
+            ## 主要功能
+
+            - 常驻 macOS 菜单栏，工作中实时显示今日已赚金额
+            - 午休、下班、周末、节假日自动暂停薪资增长
+            - 支持工作时间、午休时间、工资历史、入职日期和节假日覆盖设置
+            - 支持 publicHoliday 节假日 API 与本地缓存
+            - 支持摸鱼薪资、今日摸鱼明细和敏感金额隐藏
           generate_release_notes: true
