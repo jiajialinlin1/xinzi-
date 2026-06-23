@@ -45,25 +45,6 @@ publicHoliday 数据来源项目：
 - `ui-state.json`：金额隐藏等界面偏好
 - `public-holiday-cache.json`：节假日 API 缓存
 
-## 开发
-
-```bash
-npm install
-npm test
-npm run dev:desktop
-```
-
-## 构建
-
-```bash
-npm run build:mac
-```
-
-构建产物位于：
-
-```text
-dist/mac-arm64/Xinzi.app
-```
 
 ## 当前限制
 
