@@ -1,0 +1,4 @@
+interface:
+  display_name: "Xinzi 产品底蕴"
+  short_description: "薪资计时器的产品灵魂与未来迭代方向"
+  default_prompt: "Use $xinzi-product-soul to guide the next Xinzi product decision."
